@@ -1,6 +1,43 @@
 #!/bin/bash
 
-# Detect and run the correct command based on project type
+
+if [[ "$1" == "-deep" ]]; then
+  echo "🔍 Scanning for sub-projects..."
+  
+  find . -type f \( \
+    -name "Dockerfile" -o \
+    -name "docker-compose.yml" -o \
+    -name "pyproject.toml" -o \
+    -name "main.py" -o \
+    -name "package.json" -o \
+    -name "Cargo.toml" -o \
+    -name "main.go" -o \
+    -name "*.java" -o \
+    -name "pom.xml" -o \
+    -name "build.gradle.kts" -o \
+    -name "*.cpp" -o -name "*.c" -o \
+    -name "*.csproj" -o \
+    -name "index.php" -o \
+    -name "main.rb" -o \
+    -name "mix.exs" \
+  \) -exec dirname {} \; | sort -u | while read -r dir; do
+    echo ""
+    echo "📁 Entering: $dir"
+    echo "──────────────────────────────"
+    (
+      cd "$dir" || continue
+      "$0"  # run the same script again (no -deep)
+    )
+    echo "✅ Finished: $dir"
+    echo "──────────────────────────────"
+  done
+
+  exit 0
+fi
+
+# -------------------------------------------
+# 🔽 Your original run logic below
+# -------------------------------------------
 
 run_python() {
   echo "🟨 Python project detected."
@@ -89,7 +126,6 @@ run_csharp() {
   echo "🟦 .NET project detected."
   dotnet run
 }
-
 
 run_php() {
   echo "🐘 PHP project detected."
