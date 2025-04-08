@@ -90,6 +90,7 @@ run_csharp() {
   dotnet run
 }
 
+
 run_php() {
   echo "🐘 PHP project detected."
   php index.php
