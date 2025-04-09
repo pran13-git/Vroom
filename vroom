@@ -3,7 +3,7 @@
 set -e
 
 # -------------------------------------------
-# Handle --log flag (before any output)
+# --log flag (before any output)
 # -------------------------------------------
 LOG_ENABLED=false
 LOG_FILE="vroom.log"
@@ -78,6 +78,26 @@ auto_install_if_needed() {
 # Run command based on project
 # -------------------------------------------
 run_project() {
+
+  # Load venv if present and if --notvenv isn't passed
+  if [[ "$*" != *"--notvenv"* && ( -f "pyproject.toml" || -f "main.py" || -f "requirements.txt" ) ]]; then
+    for venv_dir in ".venv" "venv" "env"; do
+      if [ -d "$venv_dir" ] && [ -f "$venv_dir/bin/activate" ]; then
+        echo "🐍 Activating virtual environment: $venv_dir"
+        source "$venv_dir/bin/activate"
+        break
+      fi
+    done
+  fi
+
+  # load .env if present
+  if [ -f ".env" ]; then
+    echo "📦 Loading .env"
+    set -o allexport
+    source .env
+    set +o allexport
+  fi
+
   auto_install_if_needed
 
   if [ -f ".vroomrc" ]; then
@@ -87,30 +107,100 @@ run_project() {
     return
   fi
 
+  handle_missing_entrypoint() {
+    echo "❓ Could not determine how to run this project."
+    echo "👀 You can try:"
+    echo "- Adding a dev or start script"
+    echo "- Creating a .vroomrc with your run command"
+    echo "- Ensuring the main entry file exists"
+  }
+
   if [ -f "Dockerfile" ] || [ -f "docker-compose.yml" ]; then
     [ -f "docker-compose.yml" ] && docker-compose up || (docker build -t app . && docker run app)
-  elif [ -f "pyproject.toml" ] || [ -f "main.py" ]; then
-    command -v poetry &> /dev/null && poetry run python main.py || python3 main.py
-  elif [ -f "package.json" ]; then
-    if grep -q '"next"' package.json; then npm run dev
-    elif [ -f "vite.config.js" ] || [ -f "vite.config.ts" ]; then npm run dev
-    elif [ -f "vue.config.js" ]; then npm run serve
-    elif [ -f "svelte.config.js" ]; then npm run dev
-    elif [ -f "tsconfig.json" ]; then ts-node index.ts
-    else npm run dev || npm start || node index.js
-    fi
-  elif [ -f "Cargo.toml" ]; then cargo run
-  elif [ -f "main.go" ]; then go run main.go
-  elif ls *.java &> /dev/null || [ -f "pom.xml" ]; then javac Main.java && java Main
-  elif [ -f "build.gradle.kts" ]; then ./gradlew run
-  elif ls *.cpp &> /dev/null || ls *.c &> /dev/null; then g++ *.cpp -o out && ./out
-  elif ls *.csproj &> /dev/null; then dotnet run
-  elif [ -f "index.php" ]; then php index.php
-  elif [ -f "main.rb" ]; then ruby main.rb
-  elif [ -f "mix.exs" ]; then mix run
-  else echo "❌ Unknown project type"
+    return
   fi
+
+  if [ -f "pyproject.toml" ] || [ -f "main.py" ]; then
+    if command -v poetry &> /dev/null; then
+      poetry run python main.py 2>/dev/null || handle_missing_entrypoint
+    else
+      python3 main.py 2>/dev/null || handle_missing_entrypoint
+    fi
+    return
+  fi
+
+  if [ -f "package.json" ]; then
+    if grep -q '"scripts"' package.json; then
+      scripts=$(jq -r '.scripts | keys[]' package.json 2>/dev/null)
+      if echo "$scripts" | grep -q "^dev$"; then
+        npm run dev
+      elif echo "$scripts" | grep -q "^start$"; then
+        npm start
+      else
+        echo "⚠️ No 'dev' or 'start' script found in package.json"
+        echo "📜 Available scripts:"
+        echo "$scripts"
+        handle_missing_entrypoint
+      fi
+    else
+      echo "⚠️ package.json has no scripts defined"
+      handle_missing_entrypoint
+    fi
+    return
+  fi
+
+  if [ -f "Cargo.toml" ]; then
+    grep -q '\[package\]' Cargo.toml && cargo run || handle_missing_entrypoint
+    return
+  fi
+
+  if [ -f "main.go" ]; then
+    go run main.go 2>/dev/null || handle_missing_entrypoint
+    return
+  fi
+
+  if ls *.java &> /dev/null || [ -f "pom.xml" ]; then
+    if [ -f "pom.xml" ]; then
+      mvn compile exec:java || handle_missing_entrypoint
+    else
+      javac Main.java && java Main || handle_missing_entrypoint
+    fi
+    return
+  fi
+
+  if [ -f "build.gradle.kts" ]; then
+    ./gradlew run || handle_missing_entrypoint
+    return
+  fi
+
+  if ls *.cpp &> /dev/null || ls *.c &> /dev/null; then
+    g++ *.cpp -o out && ./out || handle_missing_entrypoint
+    return
+  fi
+
+  if ls *.csproj &> /dev/null; then
+    dotnet run || handle_missing_entrypoint
+    return
+  fi
+
+  if [ -f "index.php" ]; then
+    php index.php || handle_missing_entrypoint
+    return
+  fi
+
+  if [ -f "main.rb" ]; then
+    ruby main.rb || handle_missing_entrypoint
+    return
+  fi
+
+  if [ -f "mix.exs" ]; then
+    mix run || handle_missing_entrypoint
+    return
+  fi
+
+  handle_missing_entrypoint
 }
+
 
 # -------------------------------------------
 # --list, --deep, --json
@@ -169,8 +259,13 @@ fi
 # --deep to run all subprojects
 # -------------------------------------------
 if [[ "$1" == "--deep" ]]; then
-  echo "🚀 Running all subprojects..."
-  find . -type f \( \
+  echo "🚀 Running all subprojects in parallel..."
+
+  find . \( \
+    -path '*/node_modules' -o -path '*/.git' -o -path '*/dist' -o \
+    -path '*/.next' -o -path '*/build' -o -path '*/out' \
+  \) -prune -false -o \
+  -type f \( \
     -name "Dockerfile" -o -name "docker-compose.yml" -o \
     -name "pyproject.toml" -o -name "main.py" -o \
     -name "package.json" -o -name "Cargo.toml" -o \
@@ -178,35 +273,25 @@ if [[ "$1" == "--deep" ]]; then
     -name "pom.xml" -o -name "build.gradle.kts" -o \
     -name "*.cpp" -o -name "*.c" -o -name "*.csproj" -o \
     -name "index.php" -o -name "main.rb" -o -name "mix.exs" \
-  \) -exec dirname {} \; | sort -u | while read -r dir; do
-    echo -e "\n▶️ $dir"
-    echo "──────────────────────────────"
-    (cd "$dir" && run_project)
-    echo "✅ Done: $dir"
-    echo "──────────────────────────────"
+  \) -exec dirname {} \; | sort -u |
+  awk '!seen[$0]++' | while read -r dir; do
+    (
+      echo -e "\n▶️ $dir"
+      echo "──────────────────────────────"
+      cd "$dir" || exit
+      run_project
+      echo "✅ Done: $dir"
+      echo "──────────────────────────────"
+    ) &
   done
+
+  wait
+  echo "🎉 All subprojects finished."
   exit 0
 fi
 
-# -------------------------------------------
-# Load venv and .env if present
-# -------------------------------------------
-if [[ "$*" != *"--notvenv"* && ( -f "pyproject.toml" || -f "main.py" || -f "requirements.txt" ) ]]; then
-  for venv_dir in ".venv" "venv" "env"; do
-    if [ -d "$venv_dir" ] && [ -f "$venv_dir/bin/activate" ]; then
-      echo "🐍 Activating virtual environment: $venv_dir"
-      source "$venv_dir/bin/activate"
-      break
-    fi
-  done
-fi
 
-if [ -f ".env" ]; then
-  echo "📦 Loading .env"
-  set -o allexport
-  source .env
-  set +o allexport
-fi
+
 
 # -------------------------------------------
 # --supported
@@ -250,7 +335,5 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
   exit 0
 fi
 
-# -------------------------------------------
-# run project
-# -------------------------------------------
+
 run_project
