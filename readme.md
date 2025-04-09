@@ -95,7 +95,7 @@ chmod +x .vroomrc
 * **Virtual Environments:** Activates `.venv`, `venv`, or `env` if present (unless `--notvenv` is passed)
 * **.env Files:** Loads `.env` into the environment automatically
 
-## 📋 Examples
+## Examples
 
 ```bash
 vroom
@@ -116,9 +116,9 @@ vroom --notvenv
 
 ## Tested Platforms
 
-✅ macOS Terminal & iTerm
-✅ Linux (Debian, Ubuntu, Arch)
-✅ Windows (via WSL2, Git Bash, or IDE terminals like VS Code)
+✅ macOS Terminal & iTerm  
+✅ Linux (Debian, Ubuntu, Arch)  
+✅ Windows (via WSL2, Git Bash, or IDE terminals like VS Code)  
 
 ## 💬 FAQ
 
