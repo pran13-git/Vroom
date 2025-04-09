@@ -3,7 +3,7 @@
 set -e
 
 # -------------------------------------------
-# 📝 Handle --log flag (before any output)
+# Handle --log flag (before any output)
 # -------------------------------------------
 LOG_ENABLED=false
 LOG_FILE="vroom.log"
@@ -49,7 +49,7 @@ get_project_type() {
 }
 
 # -------------------------------------------
-# 📦 Auto-install dependencies
+# Auto-install dependencies
 # -------------------------------------------
 auto_install_if_needed() {
   if [ -f ".installed" ]; then return; fi
@@ -75,7 +75,7 @@ auto_install_if_needed() {
 }
 
 # -------------------------------------------
-# 🎯 Run command based on project
+# Run command based on project
 # -------------------------------------------
 run_project() {
   auto_install_if_needed
@@ -113,7 +113,7 @@ run_project() {
 }
 
 # -------------------------------------------
-# 🧠 --list, --deep, --json
+# --list, --deep, --json
 # -------------------------------------------
 if [[ "$1" == "--list" ]]; then
   OUTPUT_JSON=false
@@ -166,7 +166,7 @@ if [[ "$1" == "--list" ]]; then
 fi
 
 # -------------------------------------------
-# 🚀 --deep to run all subprojects
+# --deep to run all subprojects
 # -------------------------------------------
 if [[ "$1" == "--deep" ]]; then
   echo "🚀 Running all subprojects..."
@@ -189,7 +189,7 @@ if [[ "$1" == "--deep" ]]; then
 fi
 
 # -------------------------------------------
-# 🌱 Load venv and .env if present
+# Load venv and .env if present
 # -------------------------------------------
 if [[ "$*" != *"--notvenv"* && ( -f "pyproject.toml" || -f "main.py" || -f "requirements.txt" ) ]]; then
   for venv_dir in ".venv" "venv" "env"; do
@@ -209,7 +209,7 @@ if [ -f ".env" ]; then
 fi
 
 # -------------------------------------------
-# 🧾 --supported
+# --supported
 # -------------------------------------------
 if [[ "$1" == "--supported" ]]; then
   echo "✅ Supported Project Types:"
@@ -251,6 +251,6 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
 fi
 
 # -------------------------------------------
-# 🏁 Default: run current project
+# run project
 # -------------------------------------------
 run_project
