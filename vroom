@@ -23,7 +23,7 @@ if [ "$LOG_ENABLED" = true ]; then
 fi
 
 # -------------------------------------------
-# 🔍 Identify project type
+# Identify project type
 # -------------------------------------------
 get_project_type() {
   if [ -f "Dockerfile" ] || [ -f "docker-compose.yml" ]; then echo "🐳 Docker"; return; fi
@@ -234,7 +234,7 @@ if [[ "$1" == "--supported" ]]; then
 fi
 
 # -------------------------------------------
-# 🆘 --help
+# --help
 # -------------------------------------------
 if [[ "$1" == "--help" || "$1" == "-h" ]]; then
   echo "🛠 Usage: vroom [options]"
