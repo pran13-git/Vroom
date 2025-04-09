@@ -2,6 +2,9 @@
 
 **Vroom** is a universal project launcher in CLI. It detects and runs a wide range of project types automatically — with zero configuration.
 
+## Why Vroom?
+**Vroom** saves time by automatically detecting project types, setting up environments, installing dependencies, and running the right start command — all with a single command. It removes the need to remember how each project works, making it ideal for developers juggling multiple repos, switching between languages, or onboarding into unfamiliar codebases.
+
 
 ## 🔧 Installation
 
