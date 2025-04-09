@@ -27,7 +27,7 @@ Ensure `/usr/local/bin/` is in your `$PATH`.
 vroom [options]
 ```
 
-Run in the root directory of your project, or use `--deep` to auto-run all projects recursively.
+Its simple.
 
 ## 🏃 Basic Commands
 
