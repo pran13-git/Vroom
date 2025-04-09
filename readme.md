@@ -1,6 +1,3 @@
-You are absolutely right! The tables in the Markdown are not rendering correctly. This is because the column separators (`|`) need to align properly to define the table structure.
-
-Here's the corrected Markdown:
 
 ```markdown
 # 🚀 Vroom
