@@ -5,21 +5,47 @@
 
 ## 🔧 Installation
 
-**macOS/Linux**
+You can install **Vroom** in two ways: via `curl` (recommended for quick install), or by cloning/downloading the project manually.
+
+
+### Option 1: Quick Install via `curl` (macOS/Linux)
+
+This is the fastest way to get started. It fetches the latest version of `vroom` and makes it executable:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/pran13-git/vroom/main/vroom -o /usr/local/bin/vroom && chmod +x /usr/local/bin/vroom
+```
+
+✅ This does **not** require cloning the repo.  
+✅ You can immediately run `vroom` from any directory.
+
+> Make sure `/usr/local/bin` is in your `$PATH`.
+
+---
+
+### Option 2: Manual Installation (All Platforms)
+
+1. **Download** or **clone** the repository:
+
+```bash
+git clone https://github.com/pran13-git/vroom.git
+cd vroom
+```
+
+2. **Move and make it executable** (macOS/Linux):
 
 ```bash
 sudo cp vroom /usr/local/bin/
 chmod +x /usr/local/bin/vroom
 ```
 
-**Windows (WSL or Git Bash)**
+3. **For Windows (WSL or Git Bash)**:
 
 ```bash
 cp vroom /usr/local/bin/vroom
 chmod +x /usr/local/bin/vroom
 ```
-
-Ensure `/usr/local/bin/` is in your `$PATH`.
+> Ensure `/usr/local/bin/` is in your `$PATH`.
 
 ## ⚙️ Usage
 
