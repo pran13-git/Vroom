@@ -116,7 +116,7 @@ vroom --notvenv
 
 ## Tested Platforms
 
-✅ macOS Terminal & iTerm  
+✅ macOS Terminal  
 ✅ Linux (Debian, Ubuntu, Arch)  
 ✅ Windows (via WSL2, Git Bash, or IDE terminals like VS Code)  
 
