@@ -59,7 +59,7 @@ Make sure it’s executable:
 chmod +x .vroomrc
 ```
 
-## 🧠 Auto Detection Logic
+## Auto Detection Logic
 
 | Project Type | Files Detected                  | Action                                                       |
 |--------------|---------------------------------|--------------------------------------------------------------|
@@ -90,7 +90,7 @@ chmod +x .vroomrc
 | Rust     | `cargo`           |
 | Ruby     | `bundle`          |
 
-## 🌱 Environment Support
+## Environment Support
 
 * **Virtual Environments:** Activates `.venv`, `venv`, or `env` if present (unless `--notvenv` is passed)
 * **.env Files:** Loads `.env` into the environment automatically
@@ -114,7 +114,7 @@ vroom --notvenv
 # Skips activating Python venv
 ```
 
-## 🧪 Tested Platforms
+## Tested Platforms
 
 ✅ macOS Terminal & iTerm
 ✅ Linux (Debian, Ubuntu, Arch)
@@ -126,22 +126,21 @@ vroom --notvenv
 A: Because it’s fast, fun, and it goes! 💨
 
 **Q: What happens if no project is detected?**
-A: You’ll see `❌ Unknown project type.`
+A: You’ll see `Unknown project type.`
 
 **Q: Can I customize the behavior per project?**
 A: Yes, just drop a `.vroomrc` in your project root.
 
-## 🛠 Future Ideas
+## Future Ideas
 
-✅ Native Windows `.bat`/.`ps1` support
-⏳ Language-specific config overrides
-⏳ Plugin system for custom project types
+Native Windows support
+Extend support for production development
 
-## 🧡 Credits
+## Credits
 
-Built with love by Pranith — for developers who just want to run stuff without thinking.
+Built by [Pranith](https://www.linkedin.com/in/pranith-%E2%80%8E-6673581b7/) — for developers who just want to run stuff without thinking.
 
-## 📄 License
+## License
 
 MIT
 ```
