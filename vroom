@@ -1,0 +1,256 @@
+#!/bin/bash
+
+set -e
+
+# -------------------------------------------
+# 📝 Handle --log flag (before any output)
+# -------------------------------------------
+LOG_ENABLED=false
+LOG_FILE="vroom.log"
+
+for arg in "$@"; do
+  if [[ "$arg" == --log=* ]]; then
+    LOG_ENABLED=true
+    LOG_FILE="${arg#--log=}"
+  elif [[ "$arg" == "--log" ]]; then
+    LOG_ENABLED=true
+  fi
+done
+
+if [ "$LOG_ENABLED" = true ]; then
+  exec > >(tee -a "$LOG_FILE") 2>&1
+  echo "📝 Logging enabled — all output will be saved to $LOG_FILE"
+fi
+
+# -------------------------------------------
+# 🔍 Identify project type
+# -------------------------------------------
+get_project_type() {
+  if [ -f "Dockerfile" ] || [ -f "docker-compose.yml" ]; then echo "🐳 Docker"; return; fi
+  if [ -f "pyproject.toml" ] || [ -f "main.py" ]; then echo "🟨 Python"; return; fi
+  if [ -f "package.json" ]; then
+    if grep -q '"next"' package.json; then echo "⚡ Next.js"; return; fi
+    if [ -f "vite.config.js" ] || [ -f "vite.config.ts" ]; then echo "⚛️ React (Vite)"; return; fi
+    if [ -f "vue.config.js" ]; then echo "🟩 Vue"; return; fi
+    if [ -f "svelte.config.js" ]; then echo "🔥 Svelte"; return; fi
+    if [ -f "tsconfig.json" ]; then echo "🟪 TypeScript"; return; fi
+    echo "🟦 Node.js"; return
+  fi
+  if [ -f "Cargo.toml" ]; then echo "🟥 Rust"; return; fi
+  if [ -f "main.go" ]; then echo "🟩 Go"; return; fi
+  if ls *.java &> /dev/null || [ -f "pom.xml" ]; then echo "☕ Java"; return; fi
+  if [ -f "build.gradle.kts" ]; then echo "🟪 Kotlin"; return; fi
+  if ls *.cpp &> /dev/null || ls *.c &> /dev/null; then echo "🔵 C/C++"; return; fi
+  if ls *.csproj &> /dev/null; then echo "🟦 .NET"; return; fi
+  if [ -f "index.php" ]; then echo "🐘 PHP"; return; fi
+  if [ -f "Gemfile" ] || [ -f "main.rb" ]; then echo "💎 Ruby"; return; fi
+  if [ -f "mix.exs" ]; then echo "💜 Elixir"; return; fi
+  echo ""
+}
+
+# -------------------------------------------
+# 📦 Auto-install dependencies
+# -------------------------------------------
+auto_install_if_needed() {
+  if [ -f ".installed" ]; then return; fi
+
+  if [ -f "package-lock.json" ] || [ -f "yarn.lock" ] || [ -f "pnpm-lock.yaml" ]; then
+    echo "📦 Installing Node dependencies..."
+    if [ -f "yarn.lock" ]; then yarn install; elif [ -f "pnpm-lock.yaml" ]; then pnpm install; else npm install; fi
+  elif [ -f "requirements.txt" ]; then
+    echo "🐍 Installing Python requirements.txt..."
+    pip install -r requirements.txt
+  elif [ -f "pyproject.toml" ]; then
+    echo "🐍 Installing Python (pyproject)..."
+    if command -v poetry &> /dev/null; then poetry install; else pip install .; fi
+  elif [ -f "Cargo.lock" ]; then
+    echo "🦀 Installing Rust dependencies..."
+    cargo build > /dev/null
+  elif [ -f "Gemfile.lock" ]; then
+    echo "💎 Installing Ruby dependencies..."
+    bundle install
+  fi
+
+  touch .installed
+}
+
+# -------------------------------------------
+# 🎯 Run command based on project
+# -------------------------------------------
+run_project() {
+  auto_install_if_needed
+
+  if [ -f ".vroomrc" ]; then
+    echo "⚙️  Running .vroomrc"
+    chmod +x .vroomrc 2>/dev/null
+    ./".vroomrc"
+    return
+  fi
+
+  if [ -f "Dockerfile" ] || [ -f "docker-compose.yml" ]; then
+    [ -f "docker-compose.yml" ] && docker-compose up || (docker build -t app . && docker run app)
+  elif [ -f "pyproject.toml" ] || [ -f "main.py" ]; then
+    command -v poetry &> /dev/null && poetry run python main.py || python3 main.py
+  elif [ -f "package.json" ]; then
+    if grep -q '"next"' package.json; then npm run dev
+    elif [ -f "vite.config.js" ] || [ -f "vite.config.ts" ]; then npm run dev
+    elif [ -f "vue.config.js" ]; then npm run serve
+    elif [ -f "svelte.config.js" ]; then npm run dev
+    elif [ -f "tsconfig.json" ]; then ts-node index.ts
+    else npm run dev || npm start || node index.js
+    fi
+  elif [ -f "Cargo.toml" ]; then cargo run
+  elif [ -f "main.go" ]; then go run main.go
+  elif ls *.java &> /dev/null || [ -f "pom.xml" ]; then javac Main.java && java Main
+  elif [ -f "build.gradle.kts" ]; then ./gradlew run
+  elif ls *.cpp &> /dev/null || ls *.c &> /dev/null; then g++ *.cpp -o out && ./out
+  elif ls *.csproj &> /dev/null; then dotnet run
+  elif [ -f "index.php" ]; then php index.php
+  elif [ -f "main.rb" ]; then ruby main.rb
+  elif [ -f "mix.exs" ]; then mix run
+  else echo "❌ Unknown project type"
+  fi
+}
+
+# -------------------------------------------
+# 🧠 --list, --deep, --json
+# -------------------------------------------
+if [[ "$1" == "--list" ]]; then
+  OUTPUT_JSON=false
+  [[ "$2" == "--json" || "$3" == "--json" ]] && OUTPUT_JSON=true
+
+  declare -a projects
+
+  if [[ "$2" == "--deep" || "$3" == "--deep" ]]; then
+    while IFS= read -r dir; do
+      type=$(cd "$dir" && get_project_type)
+      [[ -n "$type" ]] && projects+=("$type|$dir")
+    done < <(find . -type f \( \
+      -name "Dockerfile" -o \
+      -name "docker-compose.yml" -o \
+      -name "pyproject.toml" -o \
+      -name "main.py" -o \
+      -name "package.json" -o \
+      -name "Cargo.toml" -o \
+      -name "main.go" -o \
+      -name "*.java" -o \
+      -name "pom.xml" -o \
+      -name "build.gradle.kts" -o \
+      -name "*.cpp" -o -name "*.c" -o \
+      -name "*.csproj" -o \
+      -name "index.php" -o \
+      -name "main.rb" -o \
+      -name "mix.exs" \
+    \) -exec dirname {} \; | sort -u)
+  else
+    type=$(get_project_type)
+    [[ -n "$type" ]] && projects+=("$type|.")
+  fi
+
+  if [ "$OUTPUT_JSON" = true ]; then
+    echo "["
+    for i in "${!projects[@]}"; do
+      IFS='|' read -r type path <<< "${projects[$i]}"
+      echo -n "  { \"type\": \"$type\", \"path\": \"$path\" }"
+      [[ $i -lt $(( ${#projects[@]} - 1 )) ]] && echo "," || echo
+    done
+    echo "]"
+  else
+    echo "📚 Detected Projects:"
+    for proj in "${projects[@]}"; do
+      IFS='|' read -r type path <<< "$proj"
+      echo "$type project at $path"
+    done
+  fi
+  exit 0
+fi
+
+# -------------------------------------------
+# 🚀 --deep to run all subprojects
+# -------------------------------------------
+if [[ "$1" == "--deep" ]]; then
+  echo "🚀 Running all subprojects..."
+  find . -type f \( \
+    -name "Dockerfile" -o -name "docker-compose.yml" -o \
+    -name "pyproject.toml" -o -name "main.py" -o \
+    -name "package.json" -o -name "Cargo.toml" -o \
+    -name "main.go" -o -name "*.java" -o \
+    -name "pom.xml" -o -name "build.gradle.kts" -o \
+    -name "*.cpp" -o -name "*.c" -o -name "*.csproj" -o \
+    -name "index.php" -o -name "main.rb" -o -name "mix.exs" \
+  \) -exec dirname {} \; | sort -u | while read -r dir; do
+    echo -e "\n▶️ $dir"
+    echo "──────────────────────────────"
+    (cd "$dir" && run_project)
+    echo "✅ Done: $dir"
+    echo "──────────────────────────────"
+  done
+  exit 0
+fi
+
+# -------------------------------------------
+# 🌱 Load venv and .env if present
+# -------------------------------------------
+if [[ "$*" != *"--notvenv"* && ( -f "pyproject.toml" || -f "main.py" || -f "requirements.txt" ) ]]; then
+  for venv_dir in ".venv" "venv" "env"; do
+    if [ -d "$venv_dir" ] && [ -f "$venv_dir/bin/activate" ]; then
+      echo "🐍 Activating virtual environment: $venv_dir"
+      source "$venv_dir/bin/activate"
+      break
+    fi
+  done
+fi
+
+if [ -f ".env" ]; then
+  echo "📦 Loading .env"
+  set -o allexport
+  source .env
+  set +o allexport
+fi
+
+# -------------------------------------------
+# 🧾 --supported
+# -------------------------------------------
+if [[ "$1" == "--supported" ]]; then
+  echo "✅ Supported Project Types:"
+  echo "🐳 Docker"
+  echo "🟨 Python"
+  echo "🟦 Node.js"
+  echo "⚡ Next.js"
+  echo "⚛️ React (Vite)"
+  echo "🟩 Vue"
+  echo "🔥 Svelte"
+  echo "🟪 TypeScript"
+  echo "🟥 Rust"
+  echo "🟩 Go"
+  echo "☕ Java"
+  echo "🟪 Kotlin"
+  echo "🔵 C/C++"
+  echo "🟦 .NET"
+  echo "🐘 PHP"
+  echo "💎 Ruby"
+  echo "💜 Elixir"
+  exit 0
+fi
+
+# -------------------------------------------
+# 🆘 --help
+# -------------------------------------------
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+  echo "🛠 Usage: vroom [options]"
+  echo ""
+  echo "Options:"
+  echo "  --supported          List all supported project types"
+  echo "  --list               Detect project in current dir"
+  echo "  --list --deep        Recursively detect all subprojects"
+  echo "  --list --json        Output JSON format"
+  echo "  --deep               Run all subprojects"
+  echo "  --log[=file]         Enable logging to file (default: vroom.log)"
+  echo "  --help               Show this help message"
+  exit 0
+fi
+
+# -------------------------------------------
+# 🏁 Default: run current project
+# -------------------------------------------
+run_project
