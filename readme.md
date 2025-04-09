@@ -142,5 +142,4 @@ Built by [Pranith](https://www.linkedin.com/in/pranith-%E2%80%8E-6673581b7/) —
 
 ## License
 
-MIT
-```
+This project is licensed under the GNU General Public License v3.0.
