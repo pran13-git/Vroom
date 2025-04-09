@@ -1,8 +1,8 @@
 
 ```markdown
-# 🚀 Vroom
+### 🚀 Vroom - One tool to run them all
 
-**Vroom** is a blazing-fast universal project launcher. It detects and runs a wide range of project types automatically — with zero configuration.
+**Vroom** is a universal project launcher. It detects and runs a wide range of project types automatically — with zero configuration.
 
 ---
 
