@@ -29,7 +29,7 @@ vroom [options]
 
 Its simple.
 
-## 🏃 Basic Commands
+## Basic Commands
 
 | Command             | Description                                                     |
 |----------------------|-----------------------------------------------------------------|
@@ -43,7 +43,7 @@ Its simple.
 | `vroom --log=custom.log`| Log output to `custom.log`                                  |
 | `vroom --notvenv`    | Skip Python virtual environment auto-activation                |
 
-## 📁 `.vroomrc`
+## `.vroomrc`
 
 Add a `.vroomrc` file to your project root to define a custom startup script. This file will be executed instead of automatic detection.
 
