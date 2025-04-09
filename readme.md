@@ -110,7 +110,7 @@ chmod +x .vroomrc
 | Ruby         | `main.rb`, `Gemfile`            | `ruby main.rb` or `bundle exec ruby main.rb`                |
 | Elixir       | `mix.exs`                       | `mix run`                                                    |
 
-## 📦 Auto Dependency Installation
+## Auto Dependency Installation
 
 | Language | Package Manager   |
 |----------|-------------------|
