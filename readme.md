@@ -167,7 +167,7 @@ Extend support for production development
 
 ## Credits
 
-Built by [Pranith](https://www.linkedin.com/in/pranith-%E2%80%8E-6673581b7/) — for developers who just want to run stuff without thinking.
+Built by Pranith ([Github](https://github.com/pran13-git), [LinkedIn](https://www.linkedin.com/in/pranith-%E2%80%8E-6673581b7/)) — for developers who just want to run stuff without thinking.
 
 ## License
 
