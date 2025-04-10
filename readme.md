@@ -169,11 +169,11 @@ Extend support for production development
 
 Built initially by Pranith ([GitHub](https://github.com/pran13-git), [LinkedIn](https://www.linkedin.com/in/pranith-%E2%80%8E-6673581b7/)) — for developers who just want to run stuff without thinking.
 
-We welcome and appreciate contributions from the open-source community!
+contributions from the open-source community are welcome and appreciated! A contributions page can be maintained, going forward.
 
 ## Open Source Contributions
 
-We encourage developers to contribute to Vroom! This can include:
+Developers can contribute to Vroom! This can include:
 
 * **Bug fixes:** Identifying and submitting patches for any issues you encounter.
 * **New features:** Proposing and implementing new functionalities to enhance Vroom.
@@ -192,7 +192,7 @@ If you'd like to contribute, please:
 4.  **Write clear and concise commit messages.**
 5.  **Submit a pull request** with a detailed explanation of your changes.
 
-We will review your contributions and provide feedback. Thank you for helping make Vroom better!
+The PRs will be reviewed and processed. Thank you for helping make Vroom better!
 
 ## License
 
