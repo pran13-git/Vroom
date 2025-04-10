@@ -167,8 +167,35 @@ Extend support for production development
 
 ## Credits
 
-Built by Pranith ([Github](https://github.com/pran13-git), [LinkedIn](https://www.linkedin.com/in/pranith-%E2%80%8E-6673581b7/)) — for developers who just want to run stuff without thinking.
+Built initially by Pranith ([GitHub](https://github.com/pran13-git), [LinkedIn](https://www.linkedin.com/in/pranith-%E2%80%8E-6673581b7/)) — for developers who just want to run stuff without thinking.
+
+We welcome and appreciate contributions from the open-source community!
+
+## Open Source Contributions
+
+We encourage developers to contribute to Vroom! This can include:
+
+* **Bug fixes:** Identifying and submitting patches for any issues you encounter.
+* **New features:** Proposing and implementing new functionalities to enhance Vroom.
+* **Improved auto-detection:** Adding support for more project types.
+* **Documentation improvements:** Making the documentation clearer and more comprehensive.
+* **Testing:** Helping to ensure the stability and reliability of Vroom.
+* **Language-specific config overrides:** Contributing to the development of language-specific configurations.
+* **Plugin system:** Assisting in the design and implementation of a plugin architecture.
+* **Native Windows support:** Contributing to the development of `.bat` and `.ps1` support.
+
+If you'd like to contribute, please:
+
+1.  **Fork the repository** on GitHub.
+2.  **Create a new branch** for your contribution.
+3.  **Make your changes** and ensure they follow the project's coding style (if any).
+4.  **Write clear and concise commit messages.**
+5.  **Submit a pull request** with a detailed explanation of your changes.
+
+We will review your contributions and provide feedback. Thank you for helping make Vroom better!
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0.
+This project is licensed under the GNU General Public License v3.0. The full text of the license is available at [https://www.gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html).
+
+By contributing to this project, you agree that your contributions will be licensed under the same GNU General Public License v3.0.
