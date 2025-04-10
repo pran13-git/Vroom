@@ -196,6 +196,6 @@ We will review your contributions and provide feedback. Thank you for helping ma
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0. The full text of the license is available at [https://www.gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html).
+This project is licensed under the GNU General Public License v3.0. The full text of the license is available at [LICENSE](LICENSE).
 
 By contributing to this project, you agree that your contributions will be licensed under the same GNU General Public License v3.0.
